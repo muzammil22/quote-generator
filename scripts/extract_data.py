@@ -2,13 +2,11 @@ import pdfplumber
 from pathlib import Path
 import json
 import openai
-from pdf2image import convert_from_path
-from PIL import Image
-from io import BytesIO
 import base64
 import os
 import streamlit as st
 from scripts.fill_docx import fill_doc
+import fitz  # PyMuPDF
 
 def run_pipeline(pdf_path):
     data = {}
@@ -33,12 +31,14 @@ def run_pipeline(pdf_path):
     data['limit'] = extract_between(text, "4.", "each Claim/Annual Aggregate")
     data['program'] = "PP23X FIXED QUOTE"
 
-    # GPT-4 Vision: get claims and disciplinary from page 4
-    images = convert_from_path(pdf_path, first_page=4, last_page=4)
-    img = images[0]
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    img_base64 = base64.b64encode(buffered.getvalue()).decode()
+    def get_page_image(pdf_path, page_number=3):
+        doc = fitz.open(pdf_path)
+        page = doc.load_page(page_number)
+        pix = page.get_pixmap(dpi=150)
+        return pix.tobytes("png")
+
+    image_bytes = get_page_image(pdf_path)
+    img_base64 = base64.b64encode(image_bytes).decode()
 
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
