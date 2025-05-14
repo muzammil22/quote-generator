@@ -1,4 +1,5 @@
 import pdfplumber
+from pathlib import Path
 import json
 import openai
 from pdf2image import convert_from_path
@@ -15,6 +16,8 @@ def run_pipeline(pdf_path):
     with pdfplumber.open(pdf_path) as pdf:
         text = "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
 
+    print(text)
+
     def extract_between(text, start, end=None):
         try:
             segment = text.split(start)[1]
@@ -22,12 +25,12 @@ def run_pipeline(pdf_path):
         except IndexError:
             return ""
 
-    data['entity'] = extract_between(text, "Legal and Business\nName:", "Address:")
+    data['entity'] = extract_between(text, "Legal and Business", "Name:")
     data['state'] = extract_between(text, "State:", "ZIP:")
     data['services'] = extract_between(text, "coverage is desired:", "This document")
     data['revenue'] = extract_between(text, "Current $", "b)")
     data['retro_date'] = extract_between(text, "RETROACTIVE DATE OF CURRENT POLICY:", "\n")
-    data['limit'] = extract_between(text, "Limits of Liability Desired:", "\n")
+    data['limit'] = extract_between(text, "4.", "each Claim/Annual Aggregate")
     data['program'] = "PP23X FIXED QUOTE"
 
     # GPT-4 Vision: get claims and disciplinary from page 4
