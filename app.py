@@ -2,7 +2,7 @@ import streamlit as st
 from pathlib import Path
 import uuid
 import os
-from quote_filler import generate_filled_doc
+from scripts.extract_data import run_pipeline as generate_filled_doc
 
 st.set_page_config(page_title="Quote Auto-Fill", layout="centered")
 st.title("📄 Upload Application to Auto-Fill Quote")
