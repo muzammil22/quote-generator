@@ -1,0 +1,9 @@
+streamlit
+pdfplumber
+python-docx
+docxtpl
+pypdf
+pdf2image
+pillow
+openai
+tqdm
